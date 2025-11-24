@@ -1,7 +1,7 @@
 package com.board.controller;
 
-import com.board.dao.BoardDao;
 import com.board.dto.BoardDto;
+import com.board.service.BoardService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -18,6 +18,7 @@ public class BoardController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        BoardService service = new BoardService();
         String uri = request.getRequestURI();
         String contextPath = request.getContextPath();
         String com = uri.substring(contextPath.length());
@@ -25,17 +26,14 @@ public class BoardController extends HttpServlet {
         String view = null;
         switch (com) {
             case "/", "/list" -> {
-                request.setAttribute("msgList", BoardDao.getInstance().selectList());
+                request.setAttribute("msgList", service.getMsgList());
+
                 view = "list.jsp";
             }
             case "/view" -> {
                 int num = Integer.parseInt(request.getParameter("num"));
-                BoardDto dto = BoardDao.getInstance().selectOne(num, true);
+                request.setAttribute("msg", service.getMsg(num));
 
-                dto.setTitle(dto.getTitle().replace(" ", "&nbsp;"));
-                dto.setContent(dto.getContent().replace(" ", "&nbsp;").replace("\n", "<br>"));
-
-                request.setAttribute("msg", dto);
                 view = "view.jsp";
             }
             case "/write" -> {
@@ -46,7 +44,7 @@ public class BoardController extends HttpServlet {
                 String action = "insert";
 
                 if (num > 0) {
-                    dto = BoardDao.getInstance().selectOne(num, false);
+                    dto = service.getMsgForWrite(num);
                     action = "update?num=" + num;
                 }
 
@@ -60,55 +58,31 @@ public class BoardController extends HttpServlet {
                 String content = request.getParameter("content");
 
                 try {
-                    Class.forName("org.mariadb.jdbc.Driver");
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-
-                if (writer != null && !writer.isEmpty() &&
-                        title != null && !title.isEmpty() &&
-                        content != null && !content.isEmpty()) {
-
-                    BoardDto dto = new BoardDto();
-                    dto.setWriter(writer);
-                    dto.setTitle(title);
-                    dto.setContent(content);
-                    BoardDao.getInstance().insertOne(dto);
-
+                    service.writeMsg(writer, title, content);
                     view = "redirect:list";
-                } else {
-                    request.setAttribute("errorMessage", "모든 항목이 빈칸 없이 입력되어야 합니다.");
+                } catch (Exception e) {
+                    request.setAttribute("errorMessage", e.getMessage());
                     view = "errorBack.jsp";
                 }
             }
             case "/update" -> {
                 int num = Integer.parseInt(request.getParameter("num"));
-
                 String writer = request.getParameter("writer");
                 String title = request.getParameter("title");
                 String content = request.getParameter("content");
 
-                if (writer != null && !writer.isEmpty() &&
-                        title != null && !title.isEmpty() &&
-                        content != null && !content.isEmpty()) {
-
-                    BoardDto dto = new BoardDto();
-                    dto.setNum(num);
-                    dto.setWriter(writer);
-                    dto.setTitle(title);
-                    dto.setContent(content);
-                    BoardDao.getInstance().updateOne(dto);
-
+                try {
+                    service.updateMsg(num, writer, title, content);
                     view = "redirect:view?num=" + num;
-                } else {
-                    request.setAttribute("errorMessage", "모든 항목이 빈칸 없이 입력되어야 합니다.");
+                } catch (Exception e) {
+                    request.setAttribute("errorMessage", e.getMessage());
                     view = "errorBack.jsp";
                 }
             }
             case "/delete" -> {
                 int num = Integer.parseInt(request.getParameter("num"));
-                BoardDao.getInstance().deleteOne(num);
 
+                service.deleteMsg(num);
                 view = "redirect:list";
             }
             default -> response.getWriter().println("Invalid URL");
