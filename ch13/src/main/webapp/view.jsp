@@ -41,7 +41,7 @@
 <input type="button" value="수정"
        onclick="location.href='write?num=${param.num}'">
 <input type="button" value="삭제"
-       onclick="location.href='delete.jsp?num=${param.num}'">
+       onclick="location.href='delete?num=${param.num}'">
 
 </body>
 </html>
