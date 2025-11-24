@@ -20,18 +20,36 @@ public class BoardDao {
         return DriverManager.getConnection("jdbc:mariadb://localhost:3306/jspdb", "jsp", "1234");
     }
 
+    public int getNumRecords() {
+        int numRecords = 0;
+        try (
+                Connection conn = getConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(
+                        "select count(*) from board")
+        ) {
+            while (rs.next()) {
+                numRecords = rs.getInt(1);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace(System.out);
+        }
+
+        return numRecords;
+    }
+
     private String getCurrentTime() {
         return LocalDate.now() + " " + LocalTime.now().toString().substring(0, 8);
     }
 
-    public ArrayList<BoardDto> selectList() {
+    public ArrayList<BoardDto> selectList(int start, int listSize) {
         ArrayList<BoardDto> result = new ArrayList<>();
 
         try (
                 Connection conn = getConnection();
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(
-                        "select * from board order by num desc");
+                        String.format("select * from board order by num desc limit %d, %d", start, listSize))
         ) {
             while (rs.next()) {
                 BoardDto dto = new BoardDto();

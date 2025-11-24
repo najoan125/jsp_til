@@ -1,13 +1,28 @@
 package com.board.service;
 
 import com.board.dao.BoardDao;
+import com.board.dao.Pagination;
 import com.board.dto.BoardDto;
 
 import java.util.ArrayList;
 
 public class BoardService {
-    public ArrayList<BoardDto> getMsgList() {
-        return BoardDao.getInstance().selectList();
+    private static final int listSize = 3;          // 게시글 리스트 한 화면에 보여줄 글의 개수
+    private static final int paginationSize = 3;    // 한 화면에 보여줄 페이지 링크 개수
+
+    public ArrayList<Pagination> getPagination(int pageNum) {
+        ArrayList<Pagination> pgnList = new ArrayList<>();
+
+        int numRecords = BoardDao.getInstance().getNumRecords();
+        int numPages = (int) Math.ceil((double) numRecords / listSize);
+        int firstLink = ((pageNum - 1) / listSize) * listSize + 1;
+        int lastLink = Math.min(firstLink + paginationSize - 1, numPages);
+
+        return pgnList;
+    }
+
+    public ArrayList<BoardDto> getMsgList(int pageNum) {
+        return BoardDao.getInstance().selectList((pageNum - 1) * listSize, listSize);
     }
 
     public BoardDto getMsg(int num) {

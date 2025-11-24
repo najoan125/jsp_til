@@ -26,7 +26,9 @@ public class BoardController extends HttpServlet {
         String view = null;
         switch (com) {
             case "/", "/list" -> {
-                request.setAttribute("msgList", service.getMsgList());
+                String tmp = request.getParameter("page");
+                int pageNum = (tmp == null || tmp.isEmpty()) ? 1 : Integer.parseInt(tmp);
+                request.setAttribute("msgList", service.getMsgList(pageNum));
 
                 view = "list.jsp";
             }
