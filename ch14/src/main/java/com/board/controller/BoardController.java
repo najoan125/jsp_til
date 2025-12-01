@@ -28,7 +28,10 @@ public class BoardController extends HttpServlet {
             case "/", "/list" -> {
                 String tmp = request.getParameter("page");
                 int pageNum = (tmp == null || tmp.isEmpty()) ? 1 : Integer.parseInt(tmp);
+
                 request.setAttribute("msgList", service.getMsgList(pageNum));
+                request.setAttribute("pgnList", service.getPagination(pageNum));
+                request.setAttribute("page", pageNum);
 
                 view = "list.jsp";
             }
@@ -46,8 +49,9 @@ public class BoardController extends HttpServlet {
                 String action = "insert";
 
                 if (num > 0) {
+                    int pageNum = Integer.parseInt(request.getParameter("page"));
                     dto = service.getMsgForWrite(num);
-                    action = "update?num=" + num;
+                    action = "update?num=" + num + "&page=" + pageNum;
                 }
 
                 request.setAttribute("msg", dto);
@@ -75,7 +79,8 @@ public class BoardController extends HttpServlet {
 
                 try {
                     service.updateMsg(num, writer, title, content);
-                    view = "redirect:view?num=" + num;
+                    int pageNum = Integer.parseInt(request.getParameter("page"));
+                    view = "redirect:view?num=" + num + "&page=" + pageNum;
                 } catch (Exception e) {
                     request.setAttribute("errorMessage", e.getMessage());
                     view = "errorBack.jsp";
@@ -85,7 +90,9 @@ public class BoardController extends HttpServlet {
                 int num = Integer.parseInt(request.getParameter("num"));
 
                 service.deleteMsg(num);
-                view = "redirect:list";
+
+                int pageNum = Integer.parseInt(request.getParameter("page"));
+                view = "redirect:list?page=" + pageNum;
             }
             default -> response.getWriter().println("Invalid URL");
         }

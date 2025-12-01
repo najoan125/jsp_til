@@ -37,11 +37,11 @@
 </table>
 
 <br>
-<input type="button" value="목록보기" onclick="location.href='list'">
+<input type="button" value="목록보기" onclick="location.href='list?page=${param.page}'">
 <input type="button" value="수정"
-       onclick="location.href='write?num=${param.num}'">
+       onclick="location.href='write?num=${param.num}&page=${param.page}'">
 <input type="button" value="삭제"
-       onclick="location.href='delete?num=${param.num}'">
+       onclick="location.href='delete?num=${param.num}&page=${param.page}'">
 
 </body>
 </html>

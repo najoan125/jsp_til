@@ -64,7 +64,7 @@
             <td>${msg.num}
             </td>
             <td style="text-align:left;">
-                <a href="view?num=${msg.num}">
+                <a href="view?num=${msg.num}&page=${page}">
                         ${msg.title}
                 </a>
             </td>
@@ -80,6 +80,13 @@
 
 </table>
 
+<br>
+<div style="width:680px; text-align:center;">
+    <c:forEach var="pgn" items="${pgnList}">
+        <a style="${pgn.currentPage ? 'text-decoration:underline' : ''}"
+           href="list?page=${pgn.pageNum}">${pgn.display}</a>&nbsp;
+    </c:forEach>
+</div>
 <br>
 <input type="button" value="글쓰기" onclick="location.href='write'">
 

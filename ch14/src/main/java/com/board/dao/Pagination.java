@@ -5,7 +5,7 @@ public class Pagination {
     private int pageNum;
     private boolean currentPage;
 
-    public Pagination(int pageNum, String display, boolean currentPage) {
+    public Pagination(String display, int pageNum, boolean currentPage) {
         this.pageNum = pageNum;
         this.display = display;
         this.currentPage = currentPage;
